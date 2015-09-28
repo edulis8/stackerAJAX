@@ -6,6 +6,15 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+
+	$('.inspiration-getter').submit( function(event){
+		// zero out results if previous search has run
+		$('.results').html('');
+		// get the value of the tags the user submitted
+		var answerers = $(this).find("input[name='answerers']").val();
+		getInspired(answerers);
+		console.log("in event listener " +answerers);
+	});
 });
 
 // this function takes the question object returned by StackOverflow 
@@ -41,6 +50,11 @@ var showQuestion = function(question) {
 	return result;
 };
 
+var showInspiration = function(inspiration){
+	console.log("test");
+	return "test";
+}
+
 
 // this function takes the results object from StackOverflow
 // and creates info about search results to be appended to DOM
@@ -73,6 +87,7 @@ var getUnanswered = function(tags) {
 		type: "GET",
 		})
 	.done(function(result){
+		console.log(result);
 		var searchResults = showSearchResults(request.tagged, result.items.length);
 
 		$('.search-results').html(searchResults);
@@ -87,6 +102,47 @@ var getUnanswered = function(tags) {
 		$('.search-results').append(errorElem);
 	});
 };
+
+var getInspired = function(answerers){
+
+	
+
+	var request = {tagged: answerers,
+					site: 'stackoverflow',
+					period: 'all_time'
+					};
+
+	var result = $.ajax({
+				url: "http://api.stackexchange.com/2.2/tags/{tag}/top-answerers/{period}",
+				data: request,
+				dataType: "jsonp",
+				type: "GET",
+				})
+	.done(function(result){
+		console.log(result);
+
+		var searchResults = showSearchResults(request.tagged, result.items.length);
+
+		$('.search-results').html(searchResults);
+
+		$.each(result.items, function(i, item) {
+			
+			var inspiration = showInspiration(item);
+			$('.results').append(inspiration);
+
+		});
+	})
+		.fail(function(jqXHR, error, errorThrown){
+		var errorElem = showError(error);
+		$('.search-results').append(errorElem);
+	});
+
+
+
+
+
+
+}
 
 
 
